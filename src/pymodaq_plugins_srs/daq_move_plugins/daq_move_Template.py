@@ -9,7 +9,7 @@ from pymodaq_gui.parameter import Parameter
 #  TODO:
 #  Replace the following fake import with the import of the real Python wrapper of your instrument. Here we suppose that
 #  the wrapper is in the hardware directory, but it could come from an external librairy like pylablib or pymeasure.
-from pymodaq_plugins_template.hardware.python_wrapper_file_of_your_instrument import PythonWrapperObjectOfYourInstrument
+from pymodaq_plugins_srs.hardware.wrapper import RGAWrapper
 
 # TODO:
 # (1) change the name of the following class to DAQ_Move_TheNameOfYourChoice
@@ -58,7 +58,7 @@ class DAQ_Move_Template(DAQ_Move_base):
     def ini_attributes(self):
         #  TODO declare the type of the wrapper (and assign it to self.controller) you're going to use for easy
         #  autocompletion
-        self.controller: PythonWrapperObjectOfYourInstrument = None
+        self.controller: RGAWrapper = None
 
         #TODO declare here attributes you want/need to init with a default value
         pass
