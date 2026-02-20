@@ -129,7 +129,7 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
         self.ini_detector_init(controller)  
         if self.is_master:
             self.controller = RGAWrapper(port=self.settings.child('com_port').value()) 
-            self.controller.filament.turn.on() 
+            # self.controller.filament.turn_on() 
 
             # self.controller.open_communication() # call eventual methods
             initialized = self.controller.is_connected() 
@@ -137,11 +137,11 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
             self.controller = controller
             initialized = True
 
-        self.dte_signal_temp.emit(DataToExport(name='PvT Scan RGA',
-                                               data=[DataFromPlugins(name='PvT',
+        self.dte_signal_temp.emit(DataToExport(name='Scan pressure RGA',
+                                               data=[DataFromPlugins(name='Masses',
                                                                     data=[np.array([0]), np.array([0])], # UH
                                                                     dim='Data0D',
-                                                                    labels=['P', 'T'])]))
+                                                                    labels=['2', '4'])]))
         self.masses_to_measure = self.get_masses_to_measure()  # Update the masses_to_measure attribute with the new value
         self.conversion_factor = self.get_conversion_factor()  # Update the conversion factor based on the selected unit
         info = "PvT Scan RGA"
@@ -150,6 +150,8 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
     def close(self):
         """Terminate the communication protocol"""
         if self.is_master:
+              self.controller.filament.turn_off()
+              self.controller.cem.voltage = 0
               self.controller.disconnect()
 
     def grab_data(self, Naverage=1, **kwargs):
@@ -164,21 +166,22 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
             others optionals arguments
         """
         masses_of_choice = self.masses_to_measure
-        names = [f'Mass {mass} amu' for mass in masses_of_choice]
+        names = [f'{mass} amu' for mass in masses_of_choice]
         data_tot = self.controller.scan.get_multiple_mass_scan(masses_of_choice)
-
-        # conversion_factor_fA = 0.1
-        # conversion_factor_torr = self.controller.pressure.get_partial_pressure_sensitivity_in_torr()
-        # selected_unit = self.settings.child('units').value()
-        # if selected_unit == 'fA':
-        #     conversion_factor = conversion_factor_fA
-        # elif selected_unit == 'torr':
-        #     conversion_factor = conversion_factor_torr
-            
         data_tot *= self.conversion_factor
-        self.dte_signal.emit(DataToExport(name='PvT Scan RGA',
-                                          data=[DataFromPlugins(name=self.selected_unit, data=data_tot,
-                                                                dim='Data0D', labels=names)]))
+
+        data_channels = []
+        for i, name in enumerate(names):
+            data_channels.append(np.array([data_tot[i]]))
+
+        self.dte_signal.emit(
+            DataToExport(name='PvT Scan RGA',
+                        data=[
+                            DataFromPlugins(name=self.selected_unit,
+                                            data=data_channels,
+                                            dim='Data0D',
+                                            labels=names)
+                            ]))
 
 
     def callback(self):
@@ -190,7 +193,7 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
-        self.controller.stop()  
+        # self.controller.stop()  
         self.emit_status(ThreadCommand('Update_Status', ['Some info you want to log']))
         return ''
 
