@@ -149,10 +149,10 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
+        self.controller.filament.turn_off()
+        self.controller.cem.voltage = 0
         if self.is_master:
-              self.controller.filament.turn_off()
-              self.controller.cem.voltage = 0
-              self.controller.disconnect()
+            self.controller.disconnect()
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
