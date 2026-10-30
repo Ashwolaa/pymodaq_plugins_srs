@@ -8,7 +8,8 @@ from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, como
 from pymodaq.utils.data import DataFromPlugins
 
 from pymodaq_plugins_srs.hardware.wrapper import RGAWrapper
-
+from pymodaq_plugins_srs.utils import Config
+config = Config()
 class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
     """ Instrument plugin class for a OD viewer.
     
@@ -32,18 +33,19 @@ class DAQ_0DViewer_RGA_PvTScan(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
-        {'title': 'COM:', 'name': 'com_port', 'type': 'list',
-         'limits': RGAWrapper.get_available_ports()},        
+        # {'title': 'COM:', 'name': 'com_port', 'type': 'list',
+        #  'limits': RGAWrapper.get_available_ports()},        
+        {'title': 'COM', 'name':  'com_port', 'type': 'list', 'limits': config['com_ports'], 'value':config['com_ports'][0]},
         {'title': 'Filament:', 'name': 'filament', 'type': 'float', 'value': 0,
          'default': 0, 'min': 0, 'max': 3.5,},        
         {'title': 'CEM:', 'name': 'cem', 'type': 'float', 'value': 0,
          'default': 0, 'min': 0, 'max': 2000,},      
         {'title': 'Scan Speed:', 'name': 'scan_speed', 'type': 'int', 'value': 0,
          'default': 3, 'min': 0, 'max': 9,},
-        {'title': 'Units:', 'name': 'units', 'type': 'list', 'limits': ['fA', 'torr']},
+        {'title': 'Units:', 'name': 'units', 'type': 'list', 'limits': ['fA', 'torr'], 'value': 'torr'},
         {'title': 'Scan resolution (steps per amu):', 'name': 'scan_resolution', 'type': 'float', 'value': 0,
          'default': 10, 'min': 10, 'max': 25,}, # UH
-        {'title': 'Masses to measure:', 'name': 'masses_to_measure', 'type': 'str', 'value': '2, 18, 44',
+        {'title': 'Masses to measure:', 'name': 'masses_to_measure', 'type': 'str', 'value': '4, 8, 12, 18, 44',
          'tip': 'Enter masses separated by commas (e.g. 2, 18, 44). Max mass: 300',},    # UH  
         ]
 
